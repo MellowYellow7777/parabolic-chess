@@ -986,6 +986,9 @@ function hl() {
 
 function draw() {
 
+if (gameState.turn === 'white') { document.body.style.backgroundColor = '#555555'; } // Dark gray for white's turn
+else { document.body.style.backgroundColor = '#000000'; } // Black for black's turn
+
 ctx.clearRect(0,0,s,s);
 
 db.forEach((fn,i) => {
