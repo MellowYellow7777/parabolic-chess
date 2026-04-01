@@ -953,6 +953,8 @@ function applyServerState(s) {
   selectedPiece = null;
   mouse.selected = null;
   mouse.grabbing = null;
+  // force redraw for turn indicator
+  turnSync = null;
 }
 window.applyServerState = applyServerState;
 
