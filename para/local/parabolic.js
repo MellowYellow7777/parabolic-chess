@@ -1021,13 +1021,32 @@ function hl() {
   }
 }
 
-
-
+// turn indication
+var turnSync = null;
+var overlay = document.createElement('div');
+document.body.appendChild(overlay);
+overlay.style.position = 'absolute';
+overlay.style.left = '0px';
+overlay.style.top = '0px';
+overlay.style.width = '100%';
+overlay.style.height = 'calc(100% - 10px)';
+overlay.style.zIndex = '-1';
 
 function draw() {
-  
-if (gameState.turn === 'white') { document.body.style.backgroundColor = '#555555'; } // Dark gray for white's turn
-else { document.body.style.backgroundColor = '#000000'; } // Black for black's turn
+
+// only update if state has changed
+if (gameState.turn !== turnSync) {
+  turnSync = gameState.turn;
+  // if turn = user color, draw on bottom
+  if (turnSync === (window.myColor ?? 'white')) {
+    overlay.style.borderTop = 'none';
+    overlay.style.borderBottom = '10px solid white';
+  // else, draw on top
+  } else {
+    overlay.style.borderTop = '10px solid white';
+    overlay.style.borderBottom = 'none';
+  }
+}
 
 ctx.clearRect(0,0,s,s);
 
