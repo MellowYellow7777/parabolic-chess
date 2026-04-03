@@ -1054,7 +1054,7 @@ nb.forEach((fn,i) => {
   var x = i & 7;
   var y = i >> 3;
   if ( x < 4 && y < 4 ) return;
-  var p = (x + y + flipped % 2;
+  var p = (x + y + flipped) % 2;
   if (psych) {
     ctx.fillStyle = 'hsl('+(i*X%360)+', 100%, 50%)';
   } else {
