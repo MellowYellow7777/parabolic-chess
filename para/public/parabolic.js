@@ -100,7 +100,10 @@ function updateMouse(event) {
   var y = event.clientY - rect.top;
   x = x * 80/s - 40;
   y = -(y * 80/s - 40);
-  if (window.myColor === 'black') y *= -1;
+  if (window.myColor === 'black') {
+    x *= -1;
+    y *= -1;
+  }
   var [sig,rho] = toParabolic(x,y);
   mouse.id = (8-sig) << 3 | (8-rho) | ((x > 0) << 6);
   mouse._sig = Math.floor(sig);
@@ -975,7 +978,10 @@ function hl() {
     if (to < 0 || to >= dots.length || excl(to)) continue;
     var [cx, cy, r] = dots[to];
     var sc = s / 40;
-    if (window.myColor === 'black') cy = 40 - cy;
+    if (window.myColor === 'black') {
+      cx = 40 - cx;
+      cy = 40 - cy;
+    }
     ctx.fillStyle = 'black';
     ctx.globalAlpha = .25;
     ctx.beginPath();
@@ -996,9 +1002,21 @@ overlay.style.top = '0px';
 overlay.style.width = '100%';
 overlay.style.height = 'calc(100% - 10px)';
 overlay.style.zIndex = '-1';
+var psych = false;
+var secret = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA','Enter'];
+window.onkeydown = function(event) {
+  if (secret.shift() === event.code) {
+    if (secret.length === 0) {
+      psych = !psych;
+    } else {
+      return;
+    }
+  }
+  secret = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA','Enter'];
+}
 
 function draw() {
-
+var X = performance.now()/100%360;
 // only update if state has changed
 if (gameState.turn !== turnSync) {
   turnSync = gameState.turn;
@@ -1013,14 +1031,19 @@ if (gameState.turn !== turnSync) {
   }
 }
 
+var flipped = window.myColor === 'black';
 ctx.clearRect(0,0,s,s);
 
 db.forEach((fn,i) => {
   var x = i & 7;
   var y = i >> 3;
   if ( x < 4 && y < 4 ) return;
-  var p = (x + y) % 2;
-  ctx.fillStyle = p ? '#EED7B0' : '#B88762';
+  var p = (x + y + flipped) % 2;
+  if (psych) {
+    ctx.fillStyle = 'hsl('+(i*X%360)+', 100%, 50%)';
+  } else {
+    ctx.fillStyle = p ? '#EED7B0' : '#B88762';
+  }
   ctx.beginPath();
   fn();
   ctx.fill();
@@ -1031,8 +1054,12 @@ nb.forEach((fn,i) => {
   var x = i & 7;
   var y = i >> 3;
   if ( x < 4 && y < 4 ) return;
-  var p = (x + y) % 2;
-  ctx.fillStyle = p ? '#B88762' : '#EED7B0';
+  var p = (x + y + flipped % 2;
+  if (psych) {
+    ctx.fillStyle = 'hsl('+(i*X%360)+', 100%, 50%)';
+  } else {
+    ctx.fillStyle = p ? '#B88762' : '#EED7B0';
+  }
   ctx.beginPath();
   fn();
   ctx.fill();
@@ -1063,15 +1090,13 @@ drawLine(20,4,20,36);
 ctx.stroke();
 ctx.closePath();
 
-var flipped = window.myColor === 'black';
-
 Piece.all.forEach(piece => {
 if (mouse.grabbing === piece) return;
   var sq = piece.square;
   var sig = 8 - (sq >> 3 & 7);
   var rho = 8 - (sq & 7);
   if (flipped) {
-      drawImage(piece.img,rho-.5,sig-.5,sq < 64,piece.color === 'white');
+      drawImage(piece.img,rho-.5,-sig+.5,sq < 64,piece.color === 'white');
   } else {
       drawImage(piece.img,sig-.5,rho-.5,sq < 64,piece.color === 'black');
   }
@@ -1083,7 +1108,7 @@ if (mouse.grabbing) {
   var sig = mouse.sig;
   var rho = mouse.rho;
   if (flipped) {
-      drawImage(piece.img,rho,sig,sq < 64,piece.color === 'white');
+      drawImage(piece.img,rho,-sig,sq < 64,piece.color === 'white');
   } else {
       drawImage(piece.img,sig,rho,sq < 64,piece.color === 'black');
   }
